@@ -1,25 +1,95 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
+title: 'Reproducible Research: Peer Assessment 1'
+output:
   html_document:
-    keep_md: true
+    keep_md: yes
+  pdf_document: default
 ---
 
 
-## Loading and preprocessing the data actvity.rds ???
+## Loading and preprocessing the data 
 
+Set environment workspace and load libraries first
+Woher kommen die Daten ?
 
-
+```{r echo = TRUE}
+# Set environment workspace to your own workdirectory !
+setwd("C:/Users/acer17/Desktop/coursera/RR_Peer_Project1/RepData_PeerAssessment1")
+# Load libraries
+library(readr)
+library(dplyr)
+library(chron)
+library(lattice)
+# Read activity data set
+if (!file.exists("activity.csv")) { unzip(zipfile="./activity.zip") }
+Activity <- read.csv("activity.csv")
+subActivity <- subset(Activity, Activity$steps != "NA")
+```
 ## What is mean total number of steps taken per day?
 
+
+```{r echo=TRUE}
+## Calculate average numbers of steps taken, per interval, across all days
+meanPerInterval <- tapply(subActivity$steps,subActivity$interval, mean) 
+meanPerInterval <- as.data.frame(cbind(meanPerInterval, names(meanPerInterval)))
+names(meanPerInterval) <- c("meanStepsInterval", "interval")
+## Make a time serie plot
+plot(as.numeric(as.character(meanPerInterval$interval)), as.numeric(as.character(meanPerInterval$meanStepsInterval)), xlab = "5-minute interval", ylab= "Mean of steps", col = "blue", type="l", main = "Interval with highest activity: 800 ~ 850")
+dev.copy(png, file = "RR1_plot2.png") 
+dev.off()
+## Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+stepsMax <- as.integer(as.character(meanPerInterval[meanPerInterval$meanStepsInterval==max(as.numeric(as.character(meanPerInterval$meanStepsInterval))), 2]))
+print(paste("5-minute interval cotaining the maximum number of steps, calculated on average across all days:", stepsMax))
+```
 
 
 ## What is the average daily activity pattern?
 
-
+```{r echo=TRUE}
+# Calculate average numbers of steps taken, per interval, across all days
+meanPerInterval <- tapply(subActivity$steps,subActivity$interval, mean) 
+meanPerInterval <- as.data.frame(cbind(meanPerInterval, names(meanPerInterval)))
+names(meanPerInterval) <- c("meanStepsInterval", "interval")
+## Make a time serie plot
+plot(as.numeric(as.character(meanPerInterval$interval)), as.numeric(as.character(meanPerInterval$meanStepsInterval)), xlab = "5-minute interval", ylab= "Mean of steps", col = "blue", type="l", main = "Interval with highest mean of steps: 800 ~ 850")
+dev.copy(png, file = "RR1_plot2.png") 
+dev.off()
+## Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+stepsMax <- as.integer(as.character(meanPerInterval[meanPerInterval$meanStepsInterval==max(as.numeric(as.character(meanPerInterval$meanStepsInterval))), 2]))
+print(paste("5-minute interval cotaining the maximum number of steps, calculated on average across all days:", stepsMax))
+```
 
 ## Imputing missing values
 
-
+```{r echo=TRUE}
+# Calculate and report the total number of missing values NA in the dataset, i.e. number of rows
+missingValue <- nrow(subset(Activity[is.na(Activity$steps) | is.na(Activity$interval) | is.na(Activity$date), ]))
+print(paste("Total number of row with missing values NA:", missingValue))
+# Replace missing values of steps with mean of number of steps for this interval, across all days
+ActivityCorr <- merge(Activity, meanPerInterval, by="interval")
+ActivityCorr[which(is.na(ActivityCorr$steps)) , 2] <- as.numeric(as.character(ActivityCorr[which(is.na(ActivityCorr$steps)) , 4])) 
+# Calculate the total number of steps taken each day
+sumSteps <- tapply(ActivityCorr$steps,ActivityCorr$date,sum) 
+stepsPerDaysCorr <- as.data.frame(cbind(sumSteps, names(sumSteps)))
+# Make a histogram of the total number of steps taken per day with missing values filled in
+hist(as.numeric(as.character(stepsPerDaysCorr$sumSteps)), 25, xlab = "Total number of steps taken per day", main= "Highest frequency between 10'000 to 11'000 total steps per day", sub = " missing values replaced by mean steps of interval", col = "grey", freq = TRUE)
+dev.copy(png, file = "RR1_plot3.png")
+dev.off()
+# Calculate mean and median with missing values filled in
+print(paste("Mean of total number of steps taken per day with missed values replaced by mean of interval:", mean(as.numeric(as.character(stepsPerDaysCorr$sumSteps)), na.rm = TRUE)))
+print(paste("Median of total number of steps taken per day with missed values replaced by median of interval:", median(as.numeric(as.character(stepsPerDaysCorr$sumSteps)), na.rm = TRUE)))
+```
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+```{r echo=TRUE}
+wdays <- factor(is.weekend(as.Date(ActivityCorr$date)), labels = c("weekday", "weekend"))
+meanStepsWdayInt <- summarise(group_by(cbind(ActivityCorr, wdays), wdays, interval), meanSteps= mean(steps))
+
+p <- xyplot(meanSteps ~ interval | wdays, data = meanStepsWdayInt, type="l", xlab = "Interval", ylab = "Number of steps", layout = c(1, 2))   
+print(p)
+dev.copy(png, file = "RR1_plot4.png") 
+dev.off()
+```
+
+
