@@ -208,6 +208,9 @@ hist(as.numeric(as.character(stepsPerDaysCorr$sumStepsCorr)),  xlab = "Total num
 
 ![](PA1_template_files/figure-html/plotTotSteps-1.png)<!-- -->
 
+The histogram RR1_Plot3 above shows 35 days had maximum ~ 11000 steps taken per day. 
+
+
 Calculate mean and median of total number of steps taken per day, with missed values filled by mean of that interval:
 
 ```r
@@ -232,9 +235,9 @@ print(paste("Median of total number of steps taken per day with missed values fi
 Are there differences in activity patterns between weekdays and weekends?
 
 ###Answer: 
-Yes, there are differences between weekdays and weekend activity pattern. The activity pattern for weekdays shows fast increasing activities from  interval 500 to 600. At weekend there are very slow increasing activities from 500 to 800. So it seams the most persons don't like to stand up early if they dont have do work and their activitiy levels are more individual at weekend. 
-From interval 900 to 2200 there is a higher activity level at weekend. People seams to use their freetime do move arround and less persons may be sitting in the office.
-At weekday there is earlier in the evening less activity (~ 10 steps), at interval 2000 instead of interval 2200 at weekend. 
+Yes, there are differences between weekdays and weekend activity pattern. The activity pattern for weekdays shows fast increasing activities from  interval 500 to 600. At weekend there are very slow increasing activities from 500 to 800. So it seams the proband don't like to stand up early if he dont have do work and he stand up more individual at weekend. 
+From interval 900 to 2200 there is a higher activity level at weekend. The Proband seams to use his freetime do move arround and sitting less in the office.
+At weekday there is less activity (~ 10 steps) early in the evening interval 2000 instead of interval 2200 at weekend. 
 
 
 
